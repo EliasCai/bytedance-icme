@@ -1,17 +1,17 @@
 # 2019 bytedance icme 短视频内容理解与推荐竞赛
 
 ### 代码结构
-├── data_io.py
-├── features.py
-├── input
-│   ├── final_track2_test_no_anwser.txt
-│   ├── final_track2_train.txt
-│   ├── track2_face_attrs.txt
-│   └── track2_title.txt
-├── output
-│   └── result.csv
-├── readme.md
-└── train.py
+├── data_io.py  
+├── features.py  
+├── input  
+│   ├── final_track2_test_no_anwser.txt  
+│   ├── final_track2_train.txt  
+│   ├── track2_face_attrs.txt  
+│   └── track2_title.txt  
+├── output  
+│   └── result.csv  
+├── readme.md  
+└── train.py  
 
 ### 运行顺序
 1. 创建文件夹input和output
