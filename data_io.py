@@ -5,17 +5,18 @@ import numpy as np
 import json
 from contextlib import contextmanager
 import time
+import sys
 
 
 def read_chunk(reader, chunkSize):
     chunks = []
-    # while True:
-    for i in range(10):
+    while True:
+    # for i in range(10): # simple data for test
         try:
             chunk = reader.get_chunk(chunkSize)
             chunks.append(chunk)
         except StopIteration:
-            print("Iteration is stopped.")
+            # print("Iteration is stopped.")
             break
     df = pd.concat(chunks, ignore_index=True)
 
@@ -35,6 +36,20 @@ def read_final_track2_train(chunkSize=100000):
     df.columns = cols
     return df
 
+    
+def read_final_track2_test(chunkSize=100000):
+    loop = True
+    path = 'input/final_track2_test_no_anwser.txt'
+
+    cols = [
+        'uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel',
+        'finish', 'like', 'music_id', 'device', 'time', 'duration_time'
+    ]
+    reader = pd.read_csv(path, iterator=True, sep='\t')
+    df = read_chunk(reader, chunkSize)
+    df.columns = cols
+    return df    
+    
 
 def read_track2_title(chunkSize=4000000, maxlen=10):
 
@@ -78,7 +93,8 @@ if __name__ == "__main__":
 
     with timer("read_final_track2_train"):
         df = read_final_track2_train(100000)
-
+        df_test = read_final_track2_test(chunkSize=100000)
+        
         df_feat, df_model = train_test_split(
             df, random_state=SEED, shuffle=False,
             test_size=0.5)  # half for feature, half for traing model

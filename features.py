@@ -68,9 +68,71 @@ def author_features(df):
     return df_feature
 
 
-def normalize_features(df1):
+def music_features(df):
+
+    ss = StandardScaler()
+
+    # 1. number of view
+    group = df['music_id'].astype(str).value_counts()
+    clip_75 = group.describe()['75%']
+    df_view = group.reset_index().astype('int')
+    df_view = df_view.rename(columns={
+        'index': 'music_id',
+        'music_id': 'music_view'
+    })
+
+    # 2. mean of finish and like
+    df_target = df.groupby(
+        'music_id').mean().loc[:, ['finish', 'like']].reset_index()
+    df_target = df_target.rename(columns={
+        'finish': 'music_finish',
+        'like': 'music_like'
+    })
+
+    # 3. Standardize data
+    df_view['music_view'] = df_view['music_view'].clip(0, clip_75)
+    df_view['music_view'] = ss.fit_transform(
+        df_view['music_view'].values.reshape(-1, 1))
+
+    df_feature = df_view.merge(df_target, on='music_id', how='left')
+
+    return df_feature    
+
+def ucity_features(df): # user_city
+
+    ss = StandardScaler()
+
+    # 1. number of view
+    group = df['user_city'].astype(str).value_counts()
+    clip_75 = group.describe()['75%']
+    df_view = group.reset_index().astype('int')
+    df_view = df_view.rename(columns={
+        'index': 'user_city',
+        'user_city': 'ucity_view'
+    })
+
+    # 2. mean of finish and like
+    df_target = df.groupby(
+        'user_city').mean().loc[:, ['finish', 'like']].reset_index()
+    df_target = df_target.rename(columns={
+        'finish': 'ucity_finish',
+        'like': 'ucity_like'
+    })
+
+    # 3. Standardize data
+    df_view['ucity_view'] = df_view['ucity_view'].clip(0, clip_75)
+    df_view['ucity_view'] = ss.fit_transform(
+        df_view['ucity_view'].values.reshape(-1, 1))
+
+    df_feature = df_view.merge(df_target, on='user_city', how='left')
+
+    return df_feature
+
+    
+def normalize_features(df1, df2=None):
 
     df = df1.copy()
+    df_test = None
     ss = StandardScaler()
 
     dict_music_id = dict([(-1, 0), (25, 1), (110, 2), (468, 3), (33, 4), (57,5),
@@ -98,9 +160,22 @@ def normalize_features(df1):
         # pd.get_dummies(df['music_id'], prefix='music_id')
     ]
     concat_list.append(df)
-    df = pd.concat(concat_list, axis=1)
+    # df = pd.concat(concat_list, axis=1)
     # from features import normalize_features; df2 = normalize_features(df)
-    return df
+    
+    if df2 is not None:
+        df_test = df2.copy()
+        df_test['duration_time'] = ss.transform(df_test['duration_time'].values.reshape(
+        -1, 1))
+
+        df_test['music_id'] = df_test['music_id'].map(
+            lambda x: dict_music_id[x] if x in dict_music_id else 9)
+
+        df_test['device'] = df_test['device'].map(
+            lambda x: dict_device[x] if x in dict_device else 0)
+
+        df_test['channel'] = df_test['channel'].clip(0, 2)  # convert value > 3 to 2
+    return df, df_test
 
 
 if __name__ == "__main__":
