@@ -93,13 +93,13 @@ def draw_roc(y_valid, y_pred):
 
 if __name__ == "__main__":
 
-    with timer("1. reading final_track2_train.txt"):
+    with timer("1. reading final track2 data"):
         df = read_final_track2_train(100000)
         df_test = read_final_track2_test(100000)
 
         df_feat, df_model = train_test_split(
-            df, random_state=SEED, shuffle=False, test_size=0.5
-        )  # half for generating feature, half for traing model
+            df, random_state=SEED, shuffle=True, test_size=0.3
+        )  # some for generating feature, some for traing model
 
     with timer("2. creating features of uid and author"):
         df_uid_feature = uid_features(df_feat)
